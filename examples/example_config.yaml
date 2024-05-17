@@ -1,0 +1,6 @@
+---
+github:
+  # token: "github_p_at_112345..." # NOTE: DO _NOT_ Include a PAT in source control! Use the `GITHUB_TOKEN` environment variable instead.
+  project_id: "PVT_123asdf_456qwerty" # Fetched from the GraphQL API
+  owner: MyGithubUser
+  repo: MyCoolRepo

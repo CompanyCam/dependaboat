@@ -1,0 +1,43 @@
+---
+github:
+  project_id: "1234"
+  owner: "Test-Owner"
+  repo: "Test-Repo"
+
+  issue:
+    title: "TESTING [DB {{alert.number}}] — {{alert.severity}} in {{alert.package_name}} ({{alert.package_ecosystem}})"
+
+    assignees:
+      all:
+        - test_user_all
+      npm:
+        - test_user_npm
+      rubygems:
+        - test_user_rubygems_1
+        - test_user_rubygems_2
+      other:
+        - test_user_other
+    labels:
+      - "Type: Security"
+      - "Severity: {{alert.severity}}"
+    body: |
+      This is a multiline body template.
+      It can be as long as you want.
+      It can include variables like {{alert.number}} and {{alert.severity}}.
+  project_item:
+    field_map:
+      - field_name: "Reporter"
+        field_value: "Dependabot"
+      - field_name: "Remediate By"
+        field_value: "{{remediation_deadline}}"
+      - field_name: "Severity"
+        field_value: "{{alert.severity}}"
+
+# Number of days you have committed to resolve an issue
+remediation_sla:
+  critical: 7
+  high: 14
+  medium: 30
+  low: 90
+
+

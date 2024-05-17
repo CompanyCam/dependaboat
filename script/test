@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run minitest against all the files in the test dir
+# This script is intended to be run from the root of the project
+bundle exec ruby -Ilib:test test/*_test.rb
