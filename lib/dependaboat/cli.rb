@@ -1,5 +1,5 @@
-require 'optionparser'
-require 'yaml'
+require "optionparser"
+require "yaml"
 
 module Dependaboat
   class Cli
@@ -12,7 +12,7 @@ module Dependaboat
 
     def initialize(*argv)
       @dry_run = false # Default
-      @logger  = Dependaboat.logger
+      @logger = Dependaboat.logger
       options_parser.parse(argv)
     end
 
@@ -23,14 +23,18 @@ module Dependaboat
 
       logger.info("Found #{@alerts.size} Dependabot alerts")
 
-      alerts_map = { "320" => { github_issue_number: "10656", github_project_item_id: "PVTI_lADOALH_aM4Ac-_zzgO9zko" } }
+      alerts_map = {"320" => {github_issue_number: "10656", github_project_item_id: "PVTI_lADOALH_aM4Ac-_zzgO9zko"}}
 
       @alerts.each do |alert|
         alert_number = alert.number
         alert_severity = alert.security_vulnerability.severity.capitalize
         alert_package_name = alert.security_vulnerability.package.name
         alert_ecosystem = alert.security_vulnerability.package.ecosystem
-        alert_created_at = Date.parse(alert.created_at) rescue Date.today
+        alert_created_at = begin
+          Date.parse(alert.created_at)
+        rescue
+          Date.today
+        end
 
         logger.info "Processing alert ##{alert_number} (#{alert_severity.upcase}) in #{alert_package_name} (#{alert_ecosystem}) created at #{alert_created_at}"
 
@@ -38,7 +42,7 @@ module Dependaboat
           logger.info "  Alert already has github issue: #{alerts_map[alert.number.to_s][:github_issue_number]}. Skipping."
           next
         else
-          #TODO: Check to see if we already created an issue. Use the title field to try to find it. via [DB 123] etc.
+          # TODO: Check to see if we already created an issue. Use the title field to try to find it. via [DB 123] etc.
 
           logger.info "  Creating new issue for this alert."
 
@@ -47,18 +51,12 @@ module Dependaboat
           body = "This is a test issue. Please ignore. Will be deleted soon."
           labels = ["Type: Security", "Severity: #{alert_severity}"]
 
-
-          # TODO: Wrap the Issue create/update within a class that we can just
-          # call .save on, which can figure out if it's a create or update and
-          # call through to octokit accordingly. That'll be way easier to test.
-
           issue = GHX::Issue.new(owner: @owner,
-                         repo: @repo,
-                         title: title,
-                         body: body,
-                         labels: labels,
-                         assignees: assignees_for_ecosystem(alert_ecosystem)
-          )
+            repo: @repo,
+            title: title,
+            body: body,
+            labels: labels,
+            assignees: assignees_for_ecosystem(alert_ecosystem))
 
           if @dry_run
             logger.info "  Dry Run: Would have created issue:"
@@ -70,9 +68,9 @@ module Dependaboat
 
           logger.info "  Created Github Issue ##{issue.number} for alert ##{alert.number}"
 
-          alerts_map[alert.number.to_s] = { github_issue_number: issue.number, github_project_item_id: nil }
+          alerts_map[alert.number.to_s] = {github_issue_number: issue.number, github_project_item_id: nil}
 
-          logger.info  "  Waiting for GH automation to run and create the associated GH Project Item..."
+          logger.info "  Waiting for GH automation to run and create the associated GH Project Item..."
           sleep 5
 
           logger.info "  Fetching Project Item..."
@@ -100,9 +98,9 @@ module Dependaboat
       logger.info config
 
       @project_id = config.dig("github", "project_id")
-      @owner      = config.dig("github", "owner")
-      @repo       = config.dig("github", "repo")
-      @assignees  = config.dig("assignees") || {}
+      @owner = config.dig("github", "owner")
+      @repo = config.dig("github", "repo")
+      @assignees = config.dig("assignees") || {}
     end
 
     def options_parser
@@ -131,6 +129,5 @@ module Dependaboat
       assignees << @assignees["all"]
       assignees.flatten.compact.uniq
     end
-
   end
 end

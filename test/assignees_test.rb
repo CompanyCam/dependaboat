@@ -1,8 +1,7 @@
-require 'minitest/autorun'
+require "minitest/autorun"
 require "dependaboat"
 
 class AssigneesTest < Minitest::Test
-
   def test_assignees
     cli = Dependaboat::Cli.new
     cli.load_config("test/full_config.yaml")
@@ -18,5 +17,4 @@ class AssigneesTest < Minitest::Test
 
     assert_equal [], cli.assignees_for_ecosystem("rubygems")
   end
-
 end

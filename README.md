@@ -1,7 +1,6 @@
+<img src="./assets/dependaboat_logo.webp" alt="Dependabot Logo" width="150" align="right" />
 
 # Dependaboat
-
-<img src="./assets/dependaboat_logo.webp" alt="Dependabot Logo" width="150" align="right" />
 
 Ferry your Dependabot Alerts into GitHub Issues and GitHub Projects
 

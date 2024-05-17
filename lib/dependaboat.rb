@@ -1,5 +1,5 @@
-require 'logger'
-require 'ghx'
+require "logger"
+require "ghx"
 
 module Dependaboat
   def self.logger
@@ -11,5 +11,5 @@ module Dependaboat
   end
 end
 
-require_relative 'version'
-require_relative 'dependaboat/cli'
+require_relative "version"
+require_relative "dependaboat/cli"
