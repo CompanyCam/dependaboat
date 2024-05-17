@@ -26,17 +26,34 @@ module Dependaboat
       alerts_map = {"320" => {github_issue_number: "10656", github_project_item_id: "PVTI_lADOALH_aM4Ac-_zzgO9zko"}}
 
       @alerts.each do |alert|
+        existing_issue = GHX::Issue.search(owner: owner, repo: repo, query: "[DB #{alert.number}]").any?
+        if existing_issue
+          logger.info "  Issue already exists for alert ##{alert.number}. Skipping."
+          next
+        end
+
         alert_number = alert.number
         alert_severity = alert.security_vulnerability.severity.capitalize
         alert_package_name = alert.security_vulnerability.package.name
-        alert_ecosystem = alert.security_vulnerability.package.ecosystem
+        alert_package_ecosystem = alert.security_vulnerability.package.ecosystem
         alert_created_at = begin
           Date.parse(alert.created_at)
         rescue
           Date.today
         end
 
-        logger.info "Processing alert ##{alert_number} (#{alert_severity.upcase}) in #{alert_package_name} (#{alert_ecosystem}) created at #{alert_created_at}"
+        remediation_deadline = alert_created_at + @config.dig("remediation_sla", alert_severity.downcase)
+
+        template_variable_map = {
+          "alert_number" => alert_number,
+          "alert_severity" => alert_severity,
+          "alert_package_name" => alert_package_name,
+          "alert_package_ecosystem" => alert_package_ecosystem,
+          "alert_created_at" => alert_created_at,
+          "remediation_deadline" => remediation_deadline.to_time.strftime("%Y-%m-%d")
+        }
+
+        logger.info "Processing alert ##{alert_number} (#{alert_severity.upcase}) in #{alert_package_name} (#{alert_package_ecosystem}) created at #{alert_created_at}"
 
         if alerts_map[alert.number.to_s]
           logger.info "  Alert already has github issue: #{alerts_map[alert.number.to_s][:github_issue_number]}. Skipping."
@@ -46,17 +63,20 @@ module Dependaboat
 
           logger.info "  Creating new issue for this alert."
 
-          # TODO: These all need to be pulled out of the config
-          title = "TESTING [DB #{alert.number}] — #{alert.security_vulnerability.severity.upcase} in #{alert.security_vulnerability.package.name} (#{alert.security_vulnerability.package.ecosystem})"
-          body = "This is a test issue. Please ignore. Will be deleted soon."
-          labels = ["Type: Security", "Severity: #{alert_severity}"]
+          title = "[DB #{alert.number}] " + process_templateable_string(@config.dig("github", "issue", "title"), template_variable_map)
+          body = process_templateable_string(@config.dig("github", "issue", "body"), template_variable_map)
+          labels_config = @config.dig("github", "issue", "labels") || []
+
+          labels = labels_config.map do |template|
+            process_templateable_string(template, template_variable_map)
+          end
 
           issue = GHX::Issue.new(owner: @owner,
             repo: @repo,
             title: title,
             body: body,
             labels: labels,
-            assignees: assignees_for_ecosystem(alert_ecosystem))
+            assignees: assignees_for_ecosystem(alert_package_ecosystem))
 
           if @dry_run
             logger.info "  Dry Run: Would have created issue:"
@@ -79,7 +99,14 @@ module Dependaboat
           logger.info "  Found project item #{project_item.id} for issue ##{issue.number}."
 
           logger.info "  Updating Project Item with additional data..."
-          project_item.update(reporter: "Dependabot", severity: alert_severity, reported_at: alert_created_at, resolve_by: alert_created_at + 30)
+
+          @config.dig("github", "project_item", "field_map").each do |field_map|
+            field_name = field_map["field_name"]
+            field_value = field_map["field_value"]
+
+            logger.debug "    #{field_name} => #{field_value}"
+            project_item.update(field_name => process_templateable_string(field_value, template_variable_map))
+          end
         end
       end
 
@@ -100,7 +127,9 @@ module Dependaboat
       @project_id = config.dig("github", "project_id")
       @owner = config.dig("github", "owner")
       @repo = config.dig("github", "repo")
-      @assignees = config.dig("assignees") || {}
+      @assignees = config.dig("github", "issue", "assignees") || {}
+
+      @config = config || {}
     end
 
     def options_parser
@@ -128,6 +157,15 @@ module Dependaboat
       assignees = Array(@assignees[ecosystem] || @assignees["other"])
       assignees << @assignees["all"]
       assignees.flatten.compact.uniq
+    end
+
+    def process_templateable_string(s, map)
+      processed_s = s.dup
+      map.each do |key, value|
+        processed_s.gsub!("{{#{key}}}", value.to_s)
+      end
+
+      processed_s
     end
   end
 end

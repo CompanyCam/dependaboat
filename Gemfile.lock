@@ -1,7 +1,7 @@
 PATH
   remote: ../ghx
   specs:
-    ghx (0.1.0)
+    ghx (0.0.4)
       faraday (~> 2.9.0)
       faraday-retry (~> 2.2.1)
       octokit

@@ -1,6 +1,43 @@
 ---
 github:
-  # token: "github_p_at_112345..." # NOTE: DO _NOT_ Include a PAT in source control! Use the `GITHUB_TOKEN` environment variable instead.
-  project_id: "PVT_123asdf_456qwerty" # Fetched from the GraphQL API
-  owner: MyGithubUser
-  repo: MyCoolRepo
+  project_id: "1234"
+  owner: "Test-Owner"
+  repo: "Test-Repo"
+
+  issue:
+    title: "TESTING [DB {{alert_number}}] — {{alert_severity}} in {{alert_package_name}} ({{alert_package_ecosystem}})"
+
+    assignees:
+      all:
+        - test_user_all
+      npm:
+        - test_user_npm
+      rubygems:
+        - test_user_rubygems_1
+        - test_user_rubygems_2
+      other:
+        - test_user_other
+    labels:
+      - "Type: Security"
+      - "Severity: {{alert_severity}}"
+    body: |
+      This is a multiline body template.
+      It can be as long as you want.
+      It can include variables like {{alert_number}} and {{alert_severity}}.
+  project_item:
+    field_map:
+      - field_name: "Reporter"
+        field_value: "Dependabot"
+      - field_name: "Remediate By"
+        field_value: "{{remediation_deadline}}"
+      - field_name: "Severity"
+        field_value: "{{alert_severity}}"
+
+# Number of days you have committed to resolve an issue
+remediation_sla:
+  critical: 7
+  high: 14
+  medium: 30
+  low: 90
+
+
