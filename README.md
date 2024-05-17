@@ -6,6 +6,8 @@ Ferry your Dependabot Alerts into GitHub Issues and GitHub Projects
 
 ## Getting Started
 
+* Requires that you have a workflow setup for your project/repo that auto-creates items when a new issue is created.
+
 ```shell
 $ gem install dependaboat
 $ dependaboat -c path/to/config.yml

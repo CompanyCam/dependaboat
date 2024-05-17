@@ -23,8 +23,6 @@ module Dependaboat
 
       logger.info("Found #{@alerts.size} Dependabot alerts")
 
-      alerts_map = {"320" => {github_issue_number: "10656", github_project_item_id: "PVTI_lADOALH_aM4Ac-_zzgO9zko"}}
-
       @alerts.each do |alert|
         existing_issue = GHX::Issue.search(owner: owner, repo: repo, query: "[DB #{alert.number}]").any?
         if existing_issue
@@ -55,59 +53,54 @@ module Dependaboat
 
         logger.info "Processing alert ##{alert_number} (#{alert_severity.upcase}) in #{alert_package_name} (#{alert_package_ecosystem}) created at #{alert_created_at}"
 
-        if alerts_map[alert.number.to_s]
-          logger.info "  Alert already has github issue: #{alerts_map[alert.number.to_s][:github_issue_number]}. Skipping."
-          next
-        else
-          # TODO: Check to see if we already created an issue. Use the title field to try to find it. via [DB 123] etc.
+        # TODO: Check to see if we already created an issue. Use the title field to try to find it. via [DB 123] etc.
 
-          logger.info "  Creating new issue for this alert."
+        logger.info "  Creating new issue for this alert."
 
-          title = "[DB #{alert.number}] " + process_templateable_string(@config.dig("github", "issue", "title"), template_variable_map)
-          body = process_templateable_string(@config.dig("github", "issue", "body"), template_variable_map)
-          labels_config = @config.dig("github", "issue", "labels") || []
+        title = "[DB #{alert.number}] " + process_templateable_string(@config.dig("github", "issue", "title"), template_variable_map)
+        body = process_templateable_string(@config.dig("github", "issue", "body"), template_variable_map)
+        labels_config = @config.dig("github", "issue", "labels") || []
 
-          labels = labels_config.map do |template|
-            process_templateable_string(template, template_variable_map)
-          end
-
-          issue = GHX::Issue.new(owner: @owner,
-            repo: @repo,
-            title: title,
-            body: body,
-            labels: labels,
-            assignees: assignees_for_ecosystem(alert_package_ecosystem))
-
-          if @dry_run
-            logger.info "  Dry Run: Would have created issue:"
-            logger.info issue.inspect
-            next
-          end
-
-          issue.save
-
-          logger.info "  Created Github Issue ##{issue.number} for alert ##{alert.number}"
-
-          alerts_map[alert.number.to_s] = {github_issue_number: issue.number, github_project_item_id: nil}
-
-          logger.info "  Waiting for GH automation to run and create the associated GH Project Item..."
-          sleep 5
-
-          logger.info "  Fetching Project Item..."
-          project_item = project.find_item_by_issue_number(owner: owner, repo: repo, number: issue.number)
-
-          logger.info "  Found project item #{project_item.id} for issue ##{issue.number}."
-
-          logger.info "  Updating Project Item with additional data..."
-
-          @config.dig("github", "project_item", "field_map").each do |field_map|
-            field_name = field_map["field_name"]
-            field_value = field_map["field_value"]
-
-            logger.debug "    #{field_name} => #{field_value}"
-            project_item.update(field_name => process_templateable_string(field_value, template_variable_map))
-          end
+        labels = labels_config.map do |template|
+          process_templateable_string(template, template_variable_map)
         end
+
+        issue = GHX::Issue.new(owner: @owner,
+          repo: @repo,
+          title: title,
+          body: body,
+          labels: labels,
+          assignees: assignees_for_ecosystem(alert_package_ecosystem))
+
+        if @dry_run
+          logger.info "  Dry Run: Would have created issue:"
+          logger.info issue.inspect
+          next
+        end
+
+        issue.save
+
+        logger.info "  Created Github Issue ##{issue.number} for alert ##{alert.number}"
+
+        logger.info "  Waiting for GH automation to run and create the associated GH Project Item..."
+        sleep 5
+
+        logger.info "  Fetching Project Item..."
+        project_item = project.find_item_by_issue_number(owner: owner, repo: repo, number: issue.number)
+
+        logger.info "  Found project item #{project_item.id} for issue ##{issue.number}."
+
+        logger.info "  Updating Project Item with additional data..."
+
+        @config.dig("github", "project_item", "field_map").each do |field_map|
+          field_name = field_map["field_name"]
+          field_value = field_map["field_value"]
+
+          logger.debug "    #{field_name} => #{field_value}"
+          project_item.update(field_name => process_templateable_string(field_value, template_variable_map))
+        end
+      rescue StandardError => e
+        logger.error "Error processing alert ##{alert.number}: #{e.message}"
       end
 
       logger.info "Run complete."
