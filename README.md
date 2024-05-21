@@ -15,7 +15,7 @@ $ dependaboat -c path/to/config.yml
 
 ## Configuration
 
-## Contributing
+See [example config](./config.yml.example)
 
 ## License
 

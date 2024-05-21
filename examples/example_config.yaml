@@ -1,43 +1,82 @@
 ---
 github:
-  project_id: "1234"
-  owner: "Test-Owner"
-  repo: "Test-Repo"
+  project_id: "PVT_asdf_1234_z" # Get from the GraphQL API
+  owner: "YourOrgName"
+  repo: "your-great-repo"
 
   issue:
-    title: "TESTING [DB {{alert_number}}] — {{alert_severity}} in {{alert_package_name}} ({{alert_package_ecosystem}})"
+    # Title will *always* start with [DB {{repo}}/{{alert_number}}]
+    title: "{{alert_severity}} in {{alert_package_name}} ({{alert_package_ecosystem}})"
 
     assignees:
-      all:
-        - test_user_all
+      #      all:
+      #        - test_user_all
       npm:
-        - test_user_npm
+        - example_user_1
       rubygems:
-        - test_user_rubygems_1
-        - test_user_rubygems_2
+        - example_user_2
       other:
-        - test_user_other
+        - example_user_3
     labels:
       - "Type: Security"
       - "Severity: {{alert_severity}}"
     body: |
-      This is a multiline body template.
-      It can be as long as you want.
-      It can include variables like {{alert_number}} and {{alert_severity}}.
-  project_item:
-    field_map:
-      - field_name: "Reporter"
-        field_value: "Dependabot"
-      - field_name: "Remediate By"
-        field_value: "{{remediation_deadline}}"
-      - field_name: "Severity"
-        field_value: "{{alert_severity}}"
+      > ⚠️🔓 This is an [automated security report](https://github.com/CompanyCam/dependabot-automation/) from Dependabot.
+      
+      <table>
+      <tr>
+      <th>Alert ID</th>
+      <td>[{{alert_number}}](https://github.com/YourOrgName/your-great-repo/security/dependabot/{{alert_number}})</td>
+      </tr>
+      <tr>
+      <th>Package</th>
+      <td>{{alert_package_name}} ({{alert_package_ecosystem}})</td>
+      </tr>
+      <tr>
+      <th>Severity</th>
+      <td>{{alert_severity}}</td>
+      </tr>
+      <tr>
+      <th>Remediate By</th>
+      <td>{{remediation_deadline}}</td>
+      </tr>
+      </table>
+      
+      ## Summary
+      
+      A security vulnerability of severity **{{alert_severity}}** has been found in {{alert_package_name}} ({{alert_package_ecosystem}}). The full details
+      are contained in the [Dependabot alert](https://github.com/YourOrgName/your-great-repo/security/dependabot/{{alert_number}}).
+      
+      ## Next Steps
+      
+      ### 1. Confirm the vulnerability.
+      Verify that we are vulnerable to the reported issue. If we are not, close the dependabot alert with a comment explaining why. Then, you will need
+      to also close _this_ issue with a comment explaining why.
+      
+      ### 2. Confirm the severity.
+      If there is reason to adjust the reported severity, do so and make a comment in this issue indicating the reasoning.
+      
+      ### 3. Remediate the issue by the deadline.
+      Update the package to a non-vulnerable version or apply patches to prevent the vulnerability from affecting us. (Be sure to reference this issue number in your PRs!)
+
+
+project_item:
+  # Field names should be in normalized form: lowercase, spaces replaced with underscores
+  field_map:
+    - field_name: "reporter"
+      field_value: "Dependabot"
+    - field_name: "resolve_by"
+      field_value: "{{remediation_deadline}}"
+    - field_name: "severity"
+      field_value: "{{alert_severity}}"
+    - field_name: "reported_at"
+      field_value: "{{alert_created_at}}"
 
 # Number of days you have committed to resolve an issue
 remediation_sla:
-  critical: 7
-  high: 14
-  medium: 30
-  low: 90
+  critical: 14
+  high: 30
+  medium: 60
+  low: 180
 
 
