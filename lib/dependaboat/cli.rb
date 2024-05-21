@@ -50,6 +50,7 @@ module Dependaboat
 
       @alerts.each do |alert|
         process_alert(alert)
+        sleep 1 # Rate limiting
       end
     end
 
@@ -63,7 +64,7 @@ module Dependaboat
     end
 
     def issue_exists?(alert)
-      existing_issue = GHX::Issue.search(owner: owner, repo: repo, query: "[DB #{alert.number}]").any?
+      existing_issue = GHX::Issue.search(owner: owner, repo: repo, query: issue_lookup_key(alert)).any?
       if existing_issue
         logger.info "  Issue already exists for alert ##{alert.number}. Skipping."
       end
@@ -122,7 +123,7 @@ module Dependaboat
     end
 
     def build_issue_title(alert, template_variable_map)
-      "[DB #{alert.number}] " + process_templateable_string(config.dig("github", "issue", "title"), template_variable_map)
+      issue_lookup_key(alert) + " " + process_templateable_string(config.dig("github", "issue", "title"), template_variable_map)
     end
 
     def build_issue_body(template_variable_map)
@@ -183,6 +184,10 @@ module Dependaboat
         logger.debug "    #{field_name} => #{field_value}"
         project_item.update(field_name => process_templateable_string(field_value, template_variable_map))
       end
+    end
+
+    def issue_lookup_key(alert)
+      "[#{@repo}/DB #{alert.number}]"
     end
 
     def options_parser

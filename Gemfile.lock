@@ -1,19 +1,11 @@
 PATH
-  remote: ../ghx
-  specs:
-    ghx (0.0.4)
-      faraday (~> 2.9.0)
-      faraday-retry (~> 2.2.1)
-      octokit
-
-PATH
   remote: .
   specs:
-    dependaboat (0.1.0)
+    dependaboat (0.2.0)
       dotenv (~> 3.1.2)
       faraday (~> 2.9.0)
       faraday-retry (~> 2.2.1)
-      ghx
+      ghx (~> 0.2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -32,6 +24,10 @@ GEM
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
+    ghx (0.2.0)
+      faraday (~> 2.9.0)
+      faraday-retry (~> 2.2.1)
+      octokit
     io-console (0.7.2)
     irb (1.13.1)
       rdoc (>= 4.0.0)
@@ -108,7 +104,6 @@ PLATFORMS
 DEPENDENCIES
   debug
   dependaboat!
-  ghx!
   minitest
   standardrb
 
