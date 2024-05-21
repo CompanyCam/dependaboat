@@ -1,5 +1,6 @@
 require "optionparser"
 require "yaml"
+require "time"
 
 module Dependaboat
   class Cli
@@ -74,7 +75,7 @@ module Dependaboat
       alert_severity = alert.security_vulnerability.severity.capitalize
       alert_package_name = alert.security_vulnerability.package.name
       alert_package_ecosystem = alert.security_vulnerability.package.ecosystem
-      alert_created_at = parse_date(alert.created_at)
+      alert_created_at = alert.created_at.to_date rescue Date.today
 
       remediation_deadline = alert_created_at + config.dig("remediation_sla", alert_severity.downcase)
 
@@ -86,12 +87,6 @@ module Dependaboat
         created_at: alert_created_at,
         remediation_deadline: remediation_deadline
       }
-    end
-
-    def parse_date(date_str)
-      Date.parse(date_str)
-    rescue
-      Date.today
     end
 
     def create_github_issue(alert, details)
