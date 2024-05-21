@@ -13,7 +13,7 @@ class AssigneesTest < Minitest::Test
 
   def test_empty_assignees
     cli = Dependaboat::Cli.new
-    cli.send(:load_config,"test/no_assignees_config.yaml")
+    cli.send(:load_config, "test/no_assignees_config.yaml")
 
     assert_equal [], cli.send(:assignees_for_ecosystem, "rubygems")
   end
