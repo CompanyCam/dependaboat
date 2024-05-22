@@ -60,7 +60,6 @@ module Dependaboat
         return if issue_exists?(alert)
         alert_details = extract_alert_details(alert)
         create_github_issue(alert, alert_details)
-
       rescue GHX::RateLimitExceededError => e
         logger.error "Rate limit exceeded!"
         retry_count += 1
@@ -71,7 +70,7 @@ module Dependaboat
         else
           logger.error "3 Retries failed. Moving on."
         end
-      rescue StandardError => e
+      rescue => e
         logger.error "Error processing alert ##{alert.number}: #{e.message}"
       end
     end
@@ -89,7 +88,11 @@ module Dependaboat
       alert_severity = alert.security_vulnerability.severity.capitalize
       alert_package_name = alert.security_vulnerability.package.name
       alert_package_ecosystem = alert.security_vulnerability.package.ecosystem
-      alert_created_at = alert.created_at.to_date rescue Date.today
+      alert_created_at = begin
+        alert.created_at.to_date
+      rescue
+        Date.today
+      end
 
       remediation_deadline = alert_created_at + config.dig("remediation_sla", alert_severity.downcase)
 
@@ -223,7 +226,9 @@ module Dependaboat
     end
 
     def process_templateable_string(s, map)
-      map.reduce(s.dup) { |str, (key, value)| str.gsub!("{{#{key}}}", value.to_s); str }
+      map.each_with_object(s.dup) { |(key, value), str|
+        str.gsub!("{{#{key}}}", value.to_s)
+      }
     end
 
     def dry_run?
