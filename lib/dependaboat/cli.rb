@@ -50,17 +50,30 @@ module Dependaboat
 
       @alerts.each do |alert|
         process_alert(alert)
-        sleep 1 # Rate limiting
+        sleep 2 # Rate limiting
       end
     end
 
     def process_alert(alert)
-      return if issue_exists?(alert)
+      retry_count = 0
+      begin
+        return if issue_exists?(alert)
+        alert_details = extract_alert_details(alert)
+        create_github_issue(alert, alert_details)
 
-      alert_details = extract_alert_details(alert)
-      create_github_issue(alert, alert_details)
-    rescue StandardError => e
-      logger.error "Error processing alert ##{alert.number}: #{e.message}"
+      rescue GHX::RateLimitExceededError => e
+        logger.error "Rate limit exceeded!"
+        retry_count += 1
+        if retry_count < 4
+          logger.info "Slowing down and retrying..."
+          sleep 15 * retry_count
+          retry
+        else
+          logger.error "3 Retries failed. Moving on."
+        end
+      rescue StandardError => e
+        logger.error "Error processing alert ##{alert.number}: #{e.message}"
+      end
     end
 
     def issue_exists?(alert)
