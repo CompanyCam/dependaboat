@@ -1,8 +1,8 @@
 ---
 github:
-  project_id: "PVT_asdf_1234_z" # Get from the GraphQL API
-  owner: "YourOrgName"
-  repo: "your-great-repo"
+  project_id: "asdf1234_z" # Retrieve from the GraphQL API
+  owner: "YourOrg"
+  repo: "YourRepo"
 
   issue:
     # Title will *always* start with [DB {{repo}}/{{alert_number}}]
@@ -12,21 +12,21 @@ github:
       #      all:
       #        - test_user_all
       npm:
-        - example_user_1
+        - developer_0
       rubygems:
-        - example_user_2
+        - developer_1
       other:
-        - example_user_3
+        - developer_2
     labels:
       - "Type: Security"
       - "Severity: {{alert_severity}}"
     body: |
-      > ⚠️🔓 This is an [automated security report](https://github.com/CompanyCam/dependabot-automation/) from Dependabot.
+      > ⚠️🔓 This is an [automated security report](https://github.com/YourOrg/dependabot-automation/) from Dependabot.
       
       <table>
       <tr>
       <th>Alert ID</th>
-      <td>[{{alert_number}}](https://github.com/YourOrgName/your-great-repo/security/dependabot/{{alert_number}})</td>
+      <td>[{{alert_number}}](https://github.com/YourOrg/YourRepo/security/dependabot/{{alert_number}})</td>
       </tr>
       <tr>
       <th>Package</th>
@@ -45,7 +45,7 @@ github:
       ## Summary
       
       A security vulnerability of severity **{{alert_severity}}** has been found in {{alert_package_name}} ({{alert_package_ecosystem}}). The full details
-      are contained in the [Dependabot alert](https://github.com/YourOrgName/your-great-repo/security/dependabot/{{alert_number}}).
+      are contained in the [Dependabot alert](https://github.com/YourOrg/YourRepo/security/dependabot/{{alert_number}}).
       
       ## Next Steps
       
@@ -59,18 +59,18 @@ github:
       ### 3. Remediate the issue by the deadline.
       Update the package to a non-vulnerable version or apply patches to prevent the vulnerability from affecting us. (Be sure to reference this issue number in your PRs!)
 
-
-project_item:
-  # Field names should be in normalized form: lowercase, spaces replaced with underscores
-  field_map:
-    - field_name: "reporter"
-      field_value: "Dependabot"
-    - field_name: "resolve_by"
-      field_value: "{{remediation_deadline}}"
-    - field_name: "severity"
-      field_value: "{{alert_severity}}"
-    - field_name: "reported_at"
-      field_value: "{{alert_created_at}}"
+  project_item:
+    # Field names should be in normalized form: lowercase, spaces replaced with underscores. Customize this list to match
+    # the fields in your project. You can leave the field_map empty if you don't want to update any fields.
+    field_map:
+      - field_name: "reporter"
+        field_value: "Dependabot"
+      - field_name: "resolve_by"
+        field_value: "{{remediation_deadline}}"
+      - field_name: "severity"
+        field_value: "{{alert_severity}}"
+      - field_name: "reported_at"
+        field_value: "{{alert_created_at}}"
 
 # Number of days you have committed to resolve an issue
 remediation_sla:
