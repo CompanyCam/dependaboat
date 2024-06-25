@@ -214,6 +214,29 @@ module Dependaboat
           load_config(config_file)
         end
 
+        # Option to pass an access token to use for GitHub API requests
+        opts.on("-tACCESS_TOKEN", "--gh-token=ACCESS_TOKEN", "The GitHub access token to use for API requests. Used for _all_ GH requests.") do |access_token|
+          GHX.octokit_token = access_token
+          GHX.graphql_token = access_token
+          GHX.rest_client_token = access_token
+        end
+
+        # Option to pass an access token to use for Octokit API requests
+        opts.on("--octokit-token=ACCESS_TOKEN", "The GitHub access token to use for Octokit API requests") do |access_token|
+          GHX.octokit_token = access_token
+        end
+
+        # Option to pass an access token to use for GraphQL API requests
+        opts.on("--graphql-token=ACCESS_TOKEN", "The GitHub access token to use for GraphQL API requests") do |access_token|
+          GHX.graphql_token = access_token
+        end
+
+        # Option to pass an access token to use for REST client API requests
+        opts.on("--rest-client-token=ACCESS_TOKEN", "The GitHub access token to use for REST client API requests") do |access_token|
+          GHX.rest_client_token = access_token
+        end
+
+        # Dry run option
         opts.on("-d", "--dry-run", "Run in dry-run mode") do
           @dry_run = true
         end

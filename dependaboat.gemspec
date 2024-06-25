@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/companycam/dependaboat"
   s.executables = %w[dependaboat]
 
-  s.add_dependency "ghx", "~> 0.2.0"
+  s.add_dependency "ghx", "~> 0.4.0"
   s.add_dependency "dotenv", "~> 3.1.2"
   s.add_dependency "faraday", "~> 2.9.0"
   s.add_dependency "faraday-retry", "~> 2.2.1"
