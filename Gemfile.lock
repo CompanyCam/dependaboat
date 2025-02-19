@@ -1,11 +1,11 @@
 PATH
   remote: .
   specs:
-    dependaboat (0.4.0)
+    dependaboat (0.4.1)
       dotenv (~> 3.1.2)
       faraday (~> 2.9.0)
       faraday-retry (~> 2.2.1)
-      ghx (~> 0.4.0)
+      ghx (~> 0.4.1)
 
 GEM
   remote: https://rubygems.org/
@@ -24,7 +24,7 @@ GEM
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
-    ghx (0.4.0)
+    ghx (0.4.1)
       faraday (~> 2.9.0)
       faraday-retry (~> 2.2.1)
       octokit
@@ -100,6 +100,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-24
   x86_64-linux
 
 DEPENDENCIES
